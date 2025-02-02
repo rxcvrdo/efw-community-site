@@ -29,6 +29,7 @@ export const MessageList = ({
     channelName,
     channelCreationName,
     data,
+    variant= "channel",
     loadMore,
     isLoadingMore,
     canLoadMore
@@ -75,7 +76,7 @@ export const MessageList = ({
                             isAuthor={false}
                             reactions={message.reactions}
                             body={message.body}
-                            file={message.file}
+                            image={message.image}
                             updatedAt={message.updatedAt}
                             createdAt={message._creationTime}
                             isEditing={false}

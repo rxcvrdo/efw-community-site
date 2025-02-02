@@ -8,7 +8,7 @@ import { Id } from "../../../../convex/_generated/dataModel";
 
 type RequestType= {
     body: string, 
-    file?: Id<"_storage">,
+    image?: Id<"_storage">,
     workspaceId: Id<"workspaces">,
     channelId?: Id<"channels">,
     parentMessageId?: Id<"messages">,

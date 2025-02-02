@@ -30,7 +30,7 @@ memberTwoId: v.id("members"),
   .index("by_workspace_id", ["workspaceId"]),
   messages: defineTable({
     body: v.string(),
-    file: v.optional(v.id("_storage")),
+    image: v.optional(v.id("_storage")),
     memberId: v.id("members"),
     workspaceId: v.id("workspaces"),
     channelId: v.optional(v.id("channels")),

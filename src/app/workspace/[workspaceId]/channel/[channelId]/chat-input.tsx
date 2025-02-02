@@ -1,5 +1,5 @@
 import { useCreateMessage } from "@/features/messages/api/use-create-message";
-import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload.ts";
+import { useGenerateUploadUrl } from "@/features/upload/api/use-generate-upload-url";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import dynamic from "next/dynamic"
@@ -7,7 +7,6 @@ import Quill from "quill"
 import { useRef, useState } from "react"
 import { toast } from "sonner";
 import { Id } from "../../../../../../convex/_generated/dataModel";
-import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 
 const Editor = dynamic (() => import("@/components/editor"), {ssr:false})
 
@@ -19,7 +18,7 @@ type CreateMessageValues = {
     channelId: Id<"channels">
     workspaceId: Id<"workspaces">
     body: string
-    file: Id<"_storage"> |undefined
+    image: Id<"_storage"> |undefined
 }
 
 
@@ -28,8 +27,8 @@ export const ChatInput= ({placeholder} : ChatInputProps) => {
     const [isPending, setIsPending] = useState(false)
     const editorRef = useRef<Quill | null>(null)
 
-    const {mutate: generateUploadUrl} = useGenerateUploadUrl();
     const {mutate: createMessage} = useCreateMessage()
+    const {mutate: generateUploadUrl} = useGenerateUploadUrl();
 
 const workspaceId = useWorkspaceId()
     const channelId = useChannelId()
@@ -37,12 +36,13 @@ const workspaceId = useWorkspaceId()
 
 const handleSubmit = async ({
     body,
-    file
+    image
 }: {
     body: string;
-    file: File | null;
+    image: File | null;
 }) => {
  
+    console.log ({body, image})
     try{
         setIsPending(true)
         editorRef?.current?.enable(false)
@@ -51,13 +51,13 @@ const handleSubmit = async ({
             channelId,
             workspaceId,
             body,
-            file: undefined
+            image: undefined
         }
 
-        if (file) {
+        if (image) {
             const url = await generateUploadUrl({}, {throwError: true})
 
-            console.log({url})
+            // console.log({url})
 
             if (!url) {
                 throw new Error("Url not found")
@@ -65,8 +65,8 @@ const handleSubmit = async ({
 
             const result = await fetch(url,{
                 method: "POST",
-                headers: {"Content-Type": file.type},
-                body: file,
+                headers: {"Content-Type": image.type},
+                body: image,
              })
 
              console.log(result)
@@ -76,7 +76,7 @@ const handleSubmit = async ({
              }
              const {storageId} = await result.json()
 
-             values.file = storageId
+             values.image = storageId
 
              console.log(values)
         }

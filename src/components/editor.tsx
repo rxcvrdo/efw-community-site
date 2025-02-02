@@ -14,12 +14,12 @@ import { EmojiPopover } from "./emoji-popover"
 import Image from "next/image"
 
 type EditorValue  = {
-  file: File | null; 
+  image: File | null; 
   body: string
 }
 
 interface EditorProps {
-  onSubmit: ({file, body}: EditorValue) => void
+  onSubmit: ({image, body}: EditorValue) => void
   onCancel?:() => void;
   placeHolder?:string
   defaultValue?: Delta | Op[];
@@ -39,7 +39,7 @@ const Editor = ({
 
 
     const [isToolbarVisible, setIsToolbarVisible] = useState(true)
-    const [file, setFile] = useState<File | null>(null)
+    const [image, setImage] = useState<File | null>(null)
     
     const [text, setText] = useState("")
 
@@ -50,7 +50,7 @@ const Editor = ({
     const quillRef = useRef<Quill | null>(null)
     const defaultValueRef = useRef(defaultValue)
     const disabledRef = useRef(disabled)
-    const fileElementRef = useRef<HTMLInputElement>(null)
+    const imageElementRef = useRef<HTMLInputElement>(null)
     
 
     useLayoutEffect(() => {
@@ -83,13 +83,13 @@ const Editor = ({
                 key: "Enter",
                 handler: () => {
                   const text = quill.getText();
-                  const addedFile = fileElementRef.current?.files?.[0] || null
-                  const isEmpty = !addedFile && text.replace(/<(.|\n)*?>/g,"").trim().length === 0
+                  const addedImage = imageElementRef.current?.files?.[0] || null
+                  const isEmpty = !addedImage && text.replace(/<(.|\n)*?>/g,"").trim().length === 0
 
                   if (isEmpty) return
                   
                   const body = JSON.stringify(quill.getContents())
-                  submitRef.current?.({body, file: addedFile})
+                  submitRef.current?.({body, image: addedImage})
   
                 }
               },
@@ -150,30 +150,30 @@ const Editor = ({
       quill?.insertText(quill?.getSelection()?.index||0, emoji.native)
     }
 
-    const isEmpty = !file && text.replace(/<(.|\n)*?>/g,"").trim().length === 0
+    const isEmpty = !image && text.replace(/<(.|\n)*?>/g,"").trim().length === 0
     
 
     return (
       <div className="flex flex-col">
         <input 
         type="file"
-        accept="image/*, video/*,audio/mpeg"
-        ref={fileElementRef}
-        onChange={(event) => setFile(event.target.files![0])}
+        accept="image/*"
+        ref={imageElementRef}
+        onChange={(event) => setImage(event.target.files![0])}
         className="hidden"
         />
         <div className={cn("flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white ",
           disabled && "opacity-50"
         )}>
             <div ref={containerRef} className="h-full ql-custom"/>
-            {!!file &&(
+            {!!image &&(
               <div className="p-2">
                 <div className="relative size-[62px] flex items-center justify-between group/file">
                 <Hint label="remove file">
                   <button
                   onClick={() => {
-                    setFile(null);
-                    fileElementRef.current!.value = ""
+                    setImage(null);
+                    imageElementRef.current!.value = ""
                   }}
                   className="hidden group-hover/file:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center "
                   >
@@ -182,7 +182,7 @@ const Editor = ({
                   </button>
                   </Hint>
                   <Image 
-                  src={URL.createObjectURL(file)}
+                  src={URL.createObjectURL(image)}
                   alt="Uploaded"
                   fill
                   className="rounded-xl overflow-hidden border object-cover"
@@ -216,7 +216,7 @@ const Editor = ({
                 <Button disabled={disabled}
                 size="iconSm"
                 variant="ghost"
-                onClick={() => fileElementRef.current?.click()}
+                onClick={() => imageElementRef.current?.click()}
                 >
                     <ImageIcon className="size-4" />
                 </Button>
@@ -236,7 +236,7 @@ const Editor = ({
                     disabled={false || isEmpty}
                     onClick={() => {
                       onSubmit({body: JSON.stringify(quillRef.current?.getContents()),
-                      file,
+                      image,
                       })
                     }}
                     size="sm"
@@ -250,7 +250,7 @@ const Editor = ({
                 disabled={disabled || isEmpty}
                 onClick={() => {
                   onSubmit({body: JSON.stringify(quillRef.current?.getContents()),
-                  file,
+                  image,
                   })
                 }}                size="iconSm"
                  className={cn("ml-auto",

@@ -1,9 +1,8 @@
-import { convexToJson, v } from "convex/values";
+import {  v } from "convex/values";
 import {mutation, query, QueryCtx} from "./_generated/server";
 import { auth } from "./auth";
 import { Doc, Id } from "./_generated/dataModel";
-import { createGzip } from "zlib";
-import { timeStamp } from "console";
+
 import { paginationOptsValidator } from "convex/server";
 
 const populateThread = async(ctx: QueryCtx, messageId: Id <"messages">) => {
@@ -27,7 +26,7 @@ const lastMessageMember = await populateMember(ctx, lastMessage.memberId)
 
 if(!lastMessageMember) {
     return{
-        count:messages.length,
+        count:0,
         image:undefined,
         timeStamp: 0,
     }
@@ -119,8 +118,7 @@ export const get = query({
 
                     const reactions = await populateReactions(ctx, message._id)
                     const thread = await populateThread(ctx, message._id)
-                    const image = message.file
-                    ?await ctx.storage.getUrl(message.file)
+                    const image = message.image?await ctx.storage.getUrl(message.image)
                     : undefined
 
                    
@@ -182,7 +180,7 @@ export const get = query({
 export const create = mutation({
     args: {
         body: v.string(),
-        file: v.optional(v.id("_storage")),
+        image: v.optional(v.id("_storage")),
         workspaceId: v.id("workspaces"),
         channelId: v.optional(v.id("channels")),
         conversationId: v.optional(v.id("conversations")),
@@ -218,11 +216,12 @@ export const create = mutation({
         const messageId = await ctx.db.insert("messages", {
             memberId: member._id,
             body: args.body,
-            file: args.file,
+            image: args.image,
             channelId: args.channelId,
             conversationId: _conversationId,
             workspaceId: args.workspaceId,
             parentMessageId: args.parentMessageId,
+            
         })
 
         return messageId

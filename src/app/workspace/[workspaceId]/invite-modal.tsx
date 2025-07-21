@@ -85,7 +85,7 @@ export const InviteModal = ({
                     variant="ghost"
                     size="sm"
                     >
-                        Copy Code
+                        Copy link
                         <CopyIcon className="size-4 ml-2" />
                     </Button>
                 </div>
